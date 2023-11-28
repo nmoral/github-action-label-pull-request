@@ -8,7 +8,7 @@ function getOctokit() {
 }
 
 
-export function getIssues({ prNumber, repoOwner, repoName }) {
+function getIssues({ prNumber, repoOwner, repoName }) {
     return getOctokit().graphql(
         `
     query getLinkedIssues($owner: String!, $name: String!, $number: Int!) {
@@ -43,25 +43,23 @@ export function getIssues({ prNumber, repoOwner, repoName }) {
 }
 
 try {
-    // `who-to-greet` input defined in action metadata file
-    const nameToGreet = core.getInput('who-to-greet');
-    console.log(`Hello ${nameToGreet}!`);
-    const time = (new Date()).toTimeString();
-    core.setOutput("time", time);
     // Get the JSON webhook payload for the event that triggered the workflow
-    const payload = JSON.stringify(github.context.payload, undefined, 2)
-
+    const token = core.getInput("github-token");
+    console.log(`The pullRequest: ${token}`);
     const {
         number,
         repository: { owner, name },
-    } = payload;
+    } = github.context.payload;
 
-    const data = await getIssues({
+    const data = getIssues({
         prNumber: number,
         repoName: name,
         repoOwner: owner.login,
+    }).then(function (data) {
+        data = JSON.stringify(data);
+        console.log(`The pullRequest: ${data}`);
     });
-    const repository = JSON.stringify(data.repository);
+    const repository = JSON.stringify(data);
     console.log(`The pullRequest: ${repository}`);
 } catch (error) {
     core.setFailed(error.message);
