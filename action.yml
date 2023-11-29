@@ -1,11 +1,14 @@
 name: 'Github action label pull request'
 description: 'Add label from issues to the pull request'
-icon: activity
 inputs:
   github-token:
     description: "Your Github token, it's already available to your Github action."
     required: false
     default: ${{ github.token }}
+  clean-before-fetching:
+    description: "If true all the label will be removed before fetching those from PR"
+    required: false
+    default: false
 runs:
   using: 'node20'
   main: 'index.js'
