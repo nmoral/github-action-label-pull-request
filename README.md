@@ -1,23 +1,18 @@
-# Hello world javascript action
+# label to pull request action
 
-This action prints "Hello World" or "Hello" + the name of a person to greet to the log.
+Put label from your issues to the PR. If a PR is linked to 
+at least one issue, all the label are added to the PR. 
 
-## Inputs
+## Options
 
-### `who-to-greet`
+### token
+Personal Access Token (PAT) that allows the stale workflow to authenticate and perform API calls to GitHub.
+Under the hood, it uses the @actions/github package.
 
-**Required** The name of the person to greet. Default `"World"`.
+Default value: ${{ github.token }}
 
-## Outputs
+### clean label on update
 
-### `time`
+remove all the label in the PR before adding those from issues
 
-The time we greeted you.
-
-## Example usage
-
-```yaml
-uses: actions/hello-world-javascript-action@e76147da8e5c81eaf017dede5645551d4b94427b
-with:
-  who-to-greet: 'Mona the Octocat'
-```
+Default value : false

@@ -18,11 +18,9 @@ function getIssues({ prNumber, repoOwner, repoName }) {
           closingIssuesReferences(first: 100) {
             totalCount
             nodes {
-              number
               labels(first: 10) {
                 nodes {
-                  id,
-                  name
+                  id
                 }
               }
               repository {
@@ -42,25 +40,46 @@ function getIssues({ prNumber, repoOwner, repoName }) {
     );
 }
 
+function addLabels(pullRequestId, labelsIds) {
+    getOctokit().graphql(
+        `
+mutation updateLabels($labelsIds: [ID!]!, $pullRequestId: ID!) {
+  addLabelsToLabelable(input: {clientMutationId:"1", labelIds: $labelsIds, labelableId: $pullRequestId}) {
+    __typename
+  }
+}
+        `,
+        {
+            labelsIds: labelsIds,
+            pullRequestId: pullRequestId
+        }
+    )
+}
+
 try {
     // Get the JSON webhook payload for the event that triggered the workflow
-    const token = core.getInput("github-token");
-    console.log(`The pullRequest: ${token}`);
     const {
         number,
         repository: { owner, name },
     } = github.context.payload;
 
-    const data = getIssues({
+    getIssues({
         prNumber: number,
         repoName: name,
         repoOwner: owner.login,
     }).then(function (data) {
-        data = JSON.stringify(data);
-        console.log(`The pullRequest: ${data}`);
+        const pullRequest = data.repository?.pullRequest || {};
+        const labels = (pullRequest?.closingIssuesReferences?.nodes || []).map(function (issue) {
+            return (issue?.labels?.nodes || []).map(label => label.id);
+        })
+
+        return {
+            pullRequest: pullRequest.id,
+            labels: ([]).concat(...labels),
+        }
+    }).then(function (data) {
+        addLabels(data.pullRequest, data.labels);
     });
-    const repository = JSON.stringify(data);
-    console.log(`The pullRequest: ${repository}`);
 } catch (error) {
     core.setFailed(error.message);
 }
