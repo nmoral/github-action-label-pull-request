@@ -9,6 +9,9 @@ inputs:
     description: "If true all the label will be removed before fetching those from PR"
     required: false
     default: false
+  excluded-labels:
+    description: "list of comma separated labels that are not added to PR"
+    required: false
 runs:
   using: 'node20'
   main: 'index.js'

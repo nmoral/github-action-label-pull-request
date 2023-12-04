@@ -12,7 +12,8 @@ export function getIssues({ prNumber, repoOwner, repoName }) {
             nodes {
               labels(first: 10) {
                 nodes {
-                  id
+                  id,
+                  name
                 }
               }
               repository {
